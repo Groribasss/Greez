@@ -39,6 +39,8 @@ typedef struct eRow {
 
 struct editorConfig {
     struct termios orig_termios;
+    int rowoff;
+    int coloff;
     int screen_rows;
     int screen_cols;
     int cx, cy;
@@ -203,10 +205,26 @@ void abFree(struct aBuff *ab) {
 
 /*** output ***/
 
+void editorScroll() {
+    if (E.cy < E.rowoff) {
+        E.rowoff = E.cy;
+    }
+    if (E.cy >= E.rowoff + E.screen_rows) {
+        E.rowoff = E.cy - E.screen_rows + 1;
+    }
+    if (E.cx < E.coloff) {
+        E.coloff = E.cx;
+    }
+    if (E.cx >= E.coloff + E.screen_cols) {
+        E.coloff = E.cx - E.screen_cols + 1;
+    }
+}
+
 void editorDrawRows(struct aBuff *ab) {
     int y;
     for (y = 0; y < E.screen_rows; y++) {
-        if (y >= E.numRows) {
+        int fileRow = y + E.rowoff;
+        if (fileRow >= E.numRows) {
         if (y == E.screen_rows / 3 && E.numRows == 0) {
             char welcome[80];
             int welcomelen = snprintf(welcome, sizeof(welcome), "Kilo editor -- version %s", KILO_VERSION);
@@ -226,9 +244,10 @@ void editorDrawRows(struct aBuff *ab) {
             abAppend(ab, "~", 1);
         }
     } else {
-        int len = E.row[y].size;
+        int len = E.row[fileRow].size - E.coloff;
+        if (len < 0) len = 0;
         if (len > E.screen_cols) len = E.screen_cols;
-        abAppend(ab, E.row[y].chars, len);
+        abAppend(ab, E.row[fileRow].chars + E.coloff, len);
     }
         abAppend(ab, "\x1b[K", 3);
         if (y < E.screen_rows - 1) {
@@ -238,12 +257,13 @@ void editorDrawRows(struct aBuff *ab) {
 }
 
 void editorRefreshScreen() {
+    editorScroll();
     struct aBuff ab = ABUFF_INIT;
     abAppend(&ab, "\x1b[?25l", 6);
     abAppend(&ab, "\x1b[H", 3);
     editorDrawRows(&ab);
     char buff[32];
-    snprintf(buff, sizeof(buff), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+    snprintf(buff, sizeof(buff), "\x1b[%d;%dH", E.cy + 1 - E.rowoff, E.cx + 1 - E.coloff);
     abAppend(&ab, buff, strlen(buff));
     abAppend(&ab, "\x1b[?25h", 6);
     write(STDOUT_FILENO, ab.b, ab.len);
@@ -253,15 +273,22 @@ void editorRefreshScreen() {
 /*** input ***/
 
 void editorMoveCursor (int key) {
+    eRow *row = (E.cy >= E.numRows) ? NULL : &E.row[E.cy];
     switch (key) {
         case ARROW_LEFT:
             if (E.cx != 0) {
                 E.cx--;
+            } else if (E.cy > 0) {
+                E.cy--;
+                E.cx = E.row[E.cy].size;
             }
             break;
         case ARROW_RIGHT:
-            if (E.cx != E.screen_cols - 1) {
+        if (row && E.cx < row->size) {
                 E.cx++;
+            } else if (row && E.cx == row->size) {
+                E.cy++;
+                E.cx = 0;
             }
             break;
         case ARROW_UP:
@@ -270,10 +297,15 @@ void editorMoveCursor (int key) {
             }
             break;
         case ARROW_DOWN:
-            if (E.cy != E.screen_rows - 1) {
+            if (E.cy < E.numRows) {
                 E.cy++;
             }
             break;
+    }
+    row = (E.cy >= E.numRows) ? NULL : &E.row[E.cy];
+    int rowlen = row ? row->size : 0;
+    if (E.cx > rowlen) {
+        E.cx = rowlen;
     }
 }
 
@@ -320,6 +352,8 @@ void editorProcessKeypress() {
 void initEditor() {
     E.cx = 0;
     E.cy = 0;
+    E.rowoff = 0;
+    E.coloff = 0;
     E.numRows = 0;
     E.row = NULL;
     if (getWindowSize(&E.screen_rows, &E.screen_cols) == -1) die("getWindowSize");
