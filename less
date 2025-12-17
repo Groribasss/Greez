@@ -1,0 +1,53 @@
+[33mcommit 77df695f390529d883f1b54479f7255e378f0cfa[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32msave[m[33m, [m[1;31morigin/save[m[33m)[m
+Author: Groribasss <maximchik.matvei@gmail.com>
+Date:   Sat Dec 13 13:18:27 2025 +0300
+
+    Added vertical and horizontal scrolling. When user scrolls horizontally cursor can't move further than row, that cursor points to. When user presses left arrow at the beginning of the row cursor moves to the end of previous row and when user presses right arrow at the end of the row cursor moves to the beginning of next row.
+
+[33mcommit b57e4761439b61c641593663ed2fabfc73a0e2ea[m
+Author: Groribasss <maximchik.matvei@gmail.com>
+Date:   Sat Dec 13 09:11:27 2025 +0300
+
+    Now you can input text file to the program and it writes in terminal as many lines as possible, according to terminal size. Attached txt file is made for a testing.
+
+[33mcommit 9fb88f9d9f977c4752c5a917274b99ffeea88302[m
+Author: Groribasss <maximchik.matvei@gmail.com>
+Date:   Sun Dec 7 19:47:23 2025 +0300
+
+    Now there is a buffer, that consist of chars (tildes, \n, \r and starting message), which must be written in terminal after clearing the screen
+
+[33mcommit 7f2ff3bf00847a5f2c18fb0c92addcdc209db531[m
+Author: Groribasss <maximchik.matvei@gmail.com>
+Date:   Sat Dec 6 10:27:06 2025 +0300
+
+    Added exit from editor on CTRL+Q. Now entering the program, the screen is clearing and program is checking amount of terminal rows and outputs tildes in start of each row, but there is a problem: terminal creates one tilde higher than cursor and one tilde at the very last row isn't exist.
+
+[33mcommit 59f2bdd83fd4bc03fda2737cc210a5dcd4efd8a3[m
+Author: Groribasss <maximchik.matvei@gmail.com>
+Date:   Fri Dec 5 22:05:07 2025 +0300
+
+    Added error handling and changed values VMIN and VTIME of termios, so now if nothing is entered, than zeroes are endlessly outputing every 100 miliseconds.
+
+[33mcommit 739a86b2b760ebf9d2076784f713dc4e959006af[m
+Author: Groribasss <maximchik.matvei@gmail.com>
+Date:   Thu Dec 4 16:33:24 2025 +0300
+
+    Created branch named save
+
+[33mcommit 88f30474ea97278ccb31a7ad02cabad5e9972612[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Groribasss <maximchik.matvei@gmail.com>
+Date:   Wed Dec 3 20:54:25 2025 +0300
+
+    When pressing a button, console outputs ASCII-key of button and value. But if doing it with ctrl, only ASCII-key outputs. Exit from program is done by pressing 'q'. Each output appears from new line.
+
+[33mcommit 8bae10579c220066a2863a79cb7d2ee25e2f6427[m
+Author: Groribasss <maximchik.matvei@gmail.com>
+Date:   Sun Nov 30 20:08:11 2025 +0300
+
+    Adding Makefile to compile kilo.c
+
+[33mcommit a711b37ec3b26f75db1151408539086d4b601f37[m
+Author: Groribasss <maximchik.matvei@gmail.com>
+Date:   Sun Nov 30 18:24:28 2025 +0300
+
+    start
